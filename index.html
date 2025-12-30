@@ -81,6 +81,23 @@
             font-size: 14px;
         }
 
+        .new-file-btn {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            background: #333;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .new-file-btn:hover {
+            background: #000;
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -373,6 +390,17 @@
             font-size: 14px;
         }
 
+        .search-warning {
+            margin-top: 10px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            background: #ffe9e9;
+            color: #8a1f1f;
+            border: 1px solid #ffb4b4;
+            font-size: 13px;
+            display: none;
+        }
+
         .split-inputs {
             display: none;
             gap: 20px;
@@ -574,6 +602,7 @@
             <label for="fileInput" class="upload-label">📁 Вибрати CSV файл</label>
             <div class="file-info" id="fileInfo">Файл не вибрано</div>
             <div id="messageBox" class="notice"></div>
+            <button class="new-file-btn" onclick="createNewCSV()">Створити новий CSV</button>
         </div>
 
         <div class="stats" id="stats" style="display: none;">
@@ -632,6 +661,7 @@
             <div id="searchResults" class="search-results">
                 <div class="empty-message">Виконайте пошук, щоб побачити результат</div>
             </div>
+            <div id="searchWarning" class="search-warning"></div>
         </div>
 
         <div class="controls" id="controls" style="display: none;">
@@ -672,6 +702,7 @@
         const searchQueryInput = document.getElementById('searchQuery');
         const searchResultsContainer = document.getElementById('searchResults');
         let currentSearchType = 'product';
+        const searchWarning = document.getElementById('searchWarning');
 
         document.getElementById('fileInput').addEventListener('change', handleFileSelect);
         document.getElementById('bulkAddButton').addEventListener('click', function (event) {
@@ -936,6 +967,7 @@
             if (!query) {
                 lastSearch = null;
                 renderSearchResults('Введіть значення для пошуку');
+                updateSearchWarning([]);
                 return;
             }
 
@@ -943,12 +975,14 @@
             if (!values.length) {
                 lastSearch = null;
                 renderSearchResults('Введіть значення для пошуку');
+                updateSearchWarning([]);
                 return;
             }
 
             lastSearch = {
                 type: currentSearchType,
-                values: values.map(val => val.toLowerCase())
+                values: values.map(val => val.toLowerCase()),
+                originalValues: values
             };
             renderSearchResults();
         }
@@ -956,16 +990,30 @@
         function renderSearchResults(optionalMessage) {
             if (!lastSearch) {
                 searchResultsContainer.innerHTML = `<div class="empty-message">${optionalMessage || 'Виконайте пошук, щоб побачити результат'}</div>`;
+                updateSearchWarning([]);
                 return;
             }
 
             const matches = [];
+            const matchedValues = new Set();
             allData.forEach((row, index) => {
                 const fieldValue = lastSearch.type === 'product' ? row.product_id : row.merchant_offer_code;
-                if (lastSearch.values.includes(fieldValue.toLowerCase())) {
+                const fieldValueLower = fieldValue.toLowerCase();
+                if (lastSearch.values.includes(fieldValueLower)) {
+                    matchedValues.add(fieldValueLower);
                     matches.push({ row, index });
                 }
             });
+
+            const missingValues = [];
+            if (lastSearch && lastSearch.values) {
+                lastSearch.values.forEach((valueLower, idx) => {
+                    if (!matchedValues.has(valueLower)) {
+                        missingValues.push(lastSearch.originalValues[idx]);
+                    }
+                });
+            }
+            updateSearchWarning(missingValues);
 
             if (!matches.length) {
                 searchResultsContainer.innerHTML = '<div class="empty-message">Нічого не знайдено за цим запитом.</div>';
@@ -1141,6 +1189,9 @@
             // Відображаємо дублікати
             displayDuplicates(duplicates);
             renderSearchResults(lastSearch ? undefined : 'Виконайте пошук, щоб побачити результат');
+            if (!lastSearch) {
+                updateSearchWarning([]);
+            }
         }
 
         function displayDuplicates(duplicates) {
@@ -1261,6 +1312,16 @@
             findAndDisplayDuplicates();
         }
 
+        function updateSearchWarning(missingValues) {
+            if (!missingValues || !missingValues.length) {
+                searchWarning.style.display = 'none';
+                searchWarning.textContent = '';
+                return;
+            }
+            searchWarning.style.display = 'block';
+            searchWarning.textContent = `Не знайдено: ${missingValues.join(', ')}`;
+        }
+
         function deleteAllRows() {
             if (!allData.length) {
                 showMessage('Немає даних для видалення.', 'error');
@@ -1277,6 +1338,19 @@
             hasDataLoaded = true;
             document.getElementById('fileInfo').textContent = 'Дані очищено';
             showMessage('Усі рядки видалено.', 'success');
+            findAndDisplayDuplicates();
+        }
+
+        function createNewCSV() {
+            allData = [];
+            nextRowIndex = 1;
+            duplicateProductIds.clear();
+            duplicateOfferCodes.clear();
+            lastSearch = null;
+            hasDataLoaded = true;
+            uploadedFileName = 'new_file.csv';
+            document.getElementById('fileInfo').textContent = 'Створено новий файл';
+            showMessage('Створено новий CSV файл. Додайте дані та експортуйте.', 'success');
             findAndDisplayDuplicates();
         }
 
