@@ -338,6 +338,16 @@
             background: #e9f8e9;
         }
 
+        .duplicate-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: #d9534f;
+            margin-right: 6px;
+            vertical-align: middle;
+        }
+
         button:disabled {
             opacity: 0.5;
             cursor: not-allowed;
@@ -515,6 +525,8 @@
         let bulkMode = 'combined';
         let previewCollapsed = true;
         let uploadedFileName = 'filtered_data.csv';
+        let duplicateProductIds = new Set();
+        let duplicateOfferCodes = new Set();
 
         const messageBox = document.getElementById('messageBox');
         const bulkInput = document.getElementById('bulkInput');
@@ -823,29 +835,63 @@
         }
 
         function findAndDisplayDuplicates() {
-            // Групуємо дублікати по merchant_offer_code
-            const groups = {};
+            // Групуємо дублікати по merchant_offer_code та product_id
+            const offerGroups = {};
+            const productGroups = {};
             allData.forEach((row, index) => {
-                const key = row.merchant_offer_code;
-                if (!groups[key]) {
-                    groups[key] = [];
+                const offerKey = row.merchant_offer_code;
+                if (!offerGroups[offerKey]) {
+                    offerGroups[offerKey] = [];
                 }
-                groups[key].push({ ...row, arrayIndex: index });
+                offerGroups[offerKey].push({ ...row, arrayIndex: index });
+
+                const productKey = row.product_id;
+                if (!productGroups[productKey]) {
+                    productGroups[productKey] = [];
+                }
+                productGroups[productKey].push({ ...row, arrayIndex: index });
             });
 
             // Фільтруємо тільки дублікати (де більше 1 запису)
-            const duplicates = {};
-            Object.keys(groups).forEach(key => {
-                if (groups[key].length > 1) {
-                    duplicates[key] = groups[key];
+            const duplicatesMap = new Map();
+
+            const registerDuplicateGroup = (type, key, rows) => {
+                const signature = rows.map(r => r.arrayIndex).sort((a, b) => a - b).join('-');
+                if (!signature) return;
+                if (!duplicatesMap.has(signature)) {
+                    duplicatesMap.set(signature, {
+                        rows,
+                        typeFlags: { product: false, merchant: false },
+                        keys: {}
+                    });
+                }
+                const group = duplicatesMap.get(signature);
+                group.typeFlags[type] = true;
+                group.keys[type] = key;
+            };
+
+            duplicateOfferCodes = new Set();
+            duplicateProductIds = new Set();
+
+            Object.keys(offerGroups).forEach(key => {
+                if (offerGroups[key].length > 1) {
+                    duplicateOfferCodes.add(key);
+                    registerDuplicateGroup('merchant', key, offerGroups[key]);
                 }
             });
+            Object.keys(productGroups).forEach(key => {
+                if (productGroups[key].length > 1) {
+                    duplicateProductIds.add(key);
+                    registerDuplicateGroup('product', key, productGroups[key]);
+                }
+            });
+            const duplicates = Array.from(duplicatesMap.values());
 
             // Оновлюємо статистику
             document.getElementById('stats').style.display = 'grid';
             document.getElementById('totalRows').textContent = allData.length;
-            document.getElementById('uniqueValues').textContent = Object.keys(groups).length;
-            document.getElementById('duplicateCount').textContent = Object.keys(duplicates).length;
+            document.getElementById('uniqueValues').textContent = Object.keys(offerGroups).length;
+            document.getElementById('duplicateCount').textContent = duplicates.length;
 
             // Показуємо контроли якщо є дані
             document.getElementById('controls').style.display = allData.length ? 'flex' : 'none';
@@ -858,35 +904,28 @@
             const container = document.getElementById('duplicatesContainer');
             container.innerHTML = '';
 
-            const duplicateKeys = Object.keys(duplicates);
-
-            if (duplicateKeys.length === 0) {
+            if (!duplicates.length) {
                 container.innerHTML = '<div class="no-data">✅ Дублікатів не знайдено!</div>';
                 return;
             }
 
-            duplicateKeys.forEach(key => {
-                const group = duplicates[key];
+            duplicates.forEach(group => {
                 const groupDiv = document.createElement('div');
                 groupDiv.className = 'duplicate-group';
 
-                const header = document.createElement('div');
-                header.className = 'group-header';
-                header.innerHTML = `
-                    <span>Merchant Offer Code: <strong>${key}</strong></span>
-                    <span class="group-count">${group.length} дублікатів</span>
-                `;
-                groupDiv.appendChild(header);
-
+                const hasProductDuplicates = group.typeFlags.product;
+                const hasMerchantDuplicates = group.typeFlags.merchant;
                 const tableContainer = document.createElement('div');
                 tableContainer.className = 'table-container';
 
                 const table = document.createElement('table');
-                const hasDeleted = group.some(row => row.deleted);
-                const rowsHtml = group.map(row => {
+                const hasDeleted = group.rows.some(row => row.deleted);
+                const rowsHtml = group.rows.map(row => {
                     const rowClass = row.deleted ? 'row-deleted' : (hasDeleted ? 'row-active' : '');
                     const buttonClass = row.deleted ? 'delete-btn deleted' : 'delete-btn';
                     const buttonLabel = row.deleted ? 'Видалений' : 'Видалити';
+                    const productIndicator = duplicateProductIds.has(row.product_id) ? '<span class="duplicate-indicator"></span>' : '';
+                    const merchantIndicator = duplicateOfferCodes.has(row.merchant_offer_code) ? '<span class="duplicate-indicator"></span>' : '';
                     return `
                         <tr id="row-${row.arrayIndex}" class="${rowClass}">
                             <td>${row.rowIndex}</td>
@@ -895,8 +934,8 @@
                                     Akeneo
                                 </a>
                             </td>
-                            <td>${row.product_id}</td>
-                            <td>${row.merchant_offer_code}</td>
+                            <td>${productIndicator}${row.product_id}</td>
+                            <td>${merchantIndicator}${row.merchant_offer_code}</td>
                             <td>
                                 <button class="${buttonClass}" onclick="toggleRowDeletion(${row.arrayIndex})">
                                     ${buttonLabel}
@@ -905,7 +944,24 @@
                         </tr>
                     `;
                 }).join('');
+                let titleRow = '';
+                const keysText = [];
+                if (hasProductDuplicates) {
+                    keysText.push(`Product ID: ${group.keys.product || ''}`);
+                }
+                if (hasMerchantDuplicates) {
+                    keysText.push(`Merchant Code: ${group.keys.merchant || ''}`);
+                }
+                if (keysText.length) {
+                    titleRow = `
+                        <caption style="text-align: left; padding: 10px 15px; font-weight: 600; font-size: 13px; text-transform: uppercase; color: #555;">
+                            ${keysText.join(' | ')}
+                        </caption>
+                    `;
+                }
+
                 table.innerHTML = `
+                    ${titleRow}
                     <thead>
                         <tr>
                             <th>Номер рядка</th>
