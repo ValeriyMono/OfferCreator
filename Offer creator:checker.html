@@ -1,0 +1,980 @@
+<!DOCTYPE html>
+<html lang="uk">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Пошук дублікатів у CSV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            padding: 30px;
+            border: 1px solid #e0e0e0;
+        }
+
+        h1 {
+            color: #000;
+            margin-bottom: 10px;
+            font-size: 28px;
+        }
+
+        .description {
+            color: #666;
+            margin-bottom: 30px;
+            line-height: 1.6;
+        }
+
+        .upload-section {
+            border: 2px dashed #333;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 30px;
+            background: #f9f9f9;
+            transition: all 0.3s;
+        }
+
+        .upload-section:hover {
+            border-color: #000;
+            background: #f0f0f0;
+        }
+
+        .upload-section input[type="file"] {
+            display: none;
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 12px 30px;
+            background: #000;
+            color: white;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 500;
+            transition: background 0.3s;
+        }
+
+        .upload-label:hover {
+            background: #333;
+        }
+
+        .file-info {
+            margin-top: 15px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-bottom: 25px;
+        }
+
+        .stat-card {
+            background: #000;
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .stat-label {
+            font-size: 13px;
+            opacity: 0.9;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .btn-primary {
+            background: #333;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-danger {
+            background: #555;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #333;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-success {
+            background: #333;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #000;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        .akeneo-link {
+            display: inline-block;
+            padding: 6px 14px;
+            background: #000;
+            color: #fff;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 13px;
+            transition: background 0.3s;
+        }
+
+        .akeneo-link:hover {
+            background: #333;
+        }
+
+        .notice {
+            margin-top: 15px;
+            padding: 12px 15px;
+            border-radius: 6px;
+            font-size: 14px;
+            display: none;
+        }
+
+        .notice.error {
+            background: #ffe9e9;
+            border: 1px solid #ffb4b4;
+            color: #8a1f1f;
+        }
+
+        .notice.success {
+            background: #e8f5e9;
+            border: 1px solid #b2dfdb;
+            color: #1b5e20;
+        }
+
+        .bulk-entry {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .bulk-entry h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .mode-switch {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .mode-switch button {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .mode-switch button:hover {
+            background: #333;
+        }
+
+        .bulk-entry textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+            margin-bottom: 12px;
+        }
+
+        .bulk-entry .bulk-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .bulk-entry .hint {
+            font-size: 13px;
+            color: #666;
+        }
+
+        .bulk-entry button {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .bulk-entry button:hover {
+            background: #333;
+        }
+
+        .split-inputs {
+            display: none;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .split-inputs .input-col {
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .split-inputs label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .pair-preview {
+            margin-top: 15px;
+            border: 1px dashed #d0d0d0;
+            border-radius: 8px;
+            padding: 12px;
+            display: none;
+        }
+
+        .pair-preview .pair-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 4px 0;
+        }
+
+        .pair-preview .pair-value {
+            flex: 1;
+            background: #fff;
+            border: 1px solid #e0e0e0;
+            padding: 6px 10px;
+            border-radius: 6px;
+            min-height: 32px;
+        }
+
+        .pair-preview .pair-connector {
+            flex: 0 0 50px;
+            height: 1px;
+            background: #bbb;
+        }
+
+        .preview-toggle {
+            background: #f0f0f0;
+            color: #000;
+            border: 1px solid #ccc;
+            padding: 6px 14px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-top: -6px;
+            margin-bottom: 6px;
+        }
+
+        .preview-toggle:hover {
+            background: #e0e0e0;
+        }
+
+        .row-deleted td {
+            background: #ffe9e9;
+        }
+
+        .row-active td {
+            background: #e9f8e9;
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .table-container {
+            overflow-x: auto;
+            border-radius: 8px;
+            border: 1px solid #e0e0e0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+        }
+
+        thead {
+            background: #000;
+            color: white;
+        }
+
+        th,
+        td {
+            padding: 14px;
+            text-align: left;
+            border-bottom: 1px solid #e0e0e0;
+        }
+
+        th {
+            font-weight: 600;
+            font-size: 13px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        tbody tr {
+            transition: background 0.2s;
+        }
+
+        tbody tr:hover {
+            background: #f0f0f0;
+        }
+
+        tbody tr:nth-child(even) {
+            background: #fafafa;
+        }
+
+        .delete-btn.deleted {
+            background: #d9534f;
+            color: #fff;
+        }
+
+        tbody tr:nth-child(even):hover {
+            background: #f0f0f0;
+        }
+
+        .delete-btn {
+            padding: 6px 12px;
+            background: #555;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: background 0.2s;
+        }
+
+        .delete-btn:hover {
+            background: #333;
+        }
+
+        .no-data {
+            text-align: center;
+            padding: 40px;
+            color: #999;
+            font-size: 16px;
+        }
+
+        .duplicate-group {
+            margin-bottom: 30px;
+        }
+
+        .group-header {
+            background: #e8e8e8;
+            padding: 12px 15px;
+            border-radius: 6px;
+            margin-bottom: 10px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .group-count {
+            background: #333;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>🔍 Пошук дублікатів у CSV</h1>
+        <div class="description">
+            Завантажте CSV файл з колонками <strong>product_id</strong> та <strong>merchant_offer_code</strong>.
+            Система знайде всі дублікати по merchant_offer_code та збереже прив'язку до рядків.
+        </div>
+
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept=".csv">
+            <label for="fileInput" class="upload-label">📁 Вибрати CSV файл</label>
+            <div class="file-info" id="fileInfo">Файл не вибрано</div>
+            <div id="messageBox" class="notice"></div>
+        </div>
+
+        <div class="stats" id="stats" style="display: none;">
+            <div class="stat-card">
+                <div class="stat-label">Всього рядків</div>
+                <div class="stat-value" id="totalRows">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Унікальних значень</div>
+                <div class="stat-value" id="uniqueValues">0</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-label">Дублікатів знайдено</div>
+                <div class="stat-value" id="duplicateCount">0</div>
+            </div>
+        </div>
+
+        <div class="bulk-entry">
+            <h2>➕ Додавання оферів</h2>
+            <div class="mode-switch">
+                <span class="hint" id="bulkModeLabel">Режим: одне поле</span>
+                <button id="toggleBulkMode">Перейти до двох полів</button>
+            </div>
+            <div id="combinedInputWrapper">
+                <textarea id="bulkInput" placeholder="product_id merchant_offer_code"></textarea>
+            </div>
+            <div id="splitInputs" class="split-inputs">
+                <div class="input-col">
+                    <label for="splitProductsInput">Список product_id</label>
+                    <textarea id="splitProductsInput" placeholder="Кожен product_id з нового рядка"></textarea>
+                </div>
+                <div class="input-col">
+                    <label for="splitOffersInput">Список merchant_offer_code</label>
+                    <textarea id="splitOffersInput" placeholder="Кожен merchant_offer_code з нового рядка"></textarea>
+                </div>
+            </div>
+            <button id="togglePreview" class="preview-toggle" style="display: none;">Детальніше</button>
+            <div id="pairPreview" class="pair-preview"></div>
+            <div class="bulk-actions">
+                <span class="hint">Розділяйте значення пробілом, ; або , або вставляйте окремі списки</span>
+                <button id="bulkAddButton">Додати масово</button>
+            </div>
+        </div>
+
+        <div class="controls" id="controls" style="display: none;">
+            <button class="btn-success" onclick="exportCSV()">💾 Вивантажити CSV</button>
+        </div>
+
+        <div id="duplicatesContainer"></div>
+    </div>
+
+    <script>
+        let allData = [];
+        let originalHeaders = ['product_id', 'merchant_offer_code'];
+        let nextRowIndex = 1;
+        let bulkMode = 'combined';
+        let previewCollapsed = true;
+        let uploadedFileName = 'filtered_data.csv';
+
+        const messageBox = document.getElementById('messageBox');
+        const bulkInput = document.getElementById('bulkInput');
+        const splitProductsInput = document.getElementById('splitProductsInput');
+        const splitOffersInput = document.getElementById('splitOffersInput');
+        const pairPreview = document.getElementById('pairPreview');
+        const toggleBulkModeButton = document.getElementById('toggleBulkMode');
+        const previewToggleButton = document.getElementById('togglePreview');
+        const bulkModeLabel = document.getElementById('bulkModeLabel');
+        const combinedInputWrapper = document.getElementById('combinedInputWrapper');
+        const splitInputsWrapper = document.getElementById('splitInputs');
+
+        document.getElementById('fileInput').addEventListener('change', handleFileSelect);
+        document.getElementById('bulkAddButton').addEventListener('click', function (event) {
+            event.preventDefault();
+            addBulkRows();
+        });
+        toggleBulkModeButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            const nextMode = bulkMode === 'combined' ? 'split' : 'combined';
+            setBulkMode(nextMode);
+        });
+        splitProductsInput.addEventListener('input', updatePairPreview);
+        splitOffersInput.addEventListener('input', updatePairPreview);
+        previewToggleButton.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (previewToggleButton.disabled) return;
+            previewCollapsed = !previewCollapsed;
+            previewToggleButton.textContent = previewCollapsed ? 'Детальніше' : 'Приховати';
+            updatePairPreview();
+        });
+        setBulkMode('combined');
+
+        function setBulkMode(mode) {
+            bulkMode = mode;
+            if (mode === 'split') {
+                combinedInputWrapper.style.display = 'none';
+                splitInputsWrapper.style.display = 'flex';
+                toggleBulkModeButton.textContent = 'Повернути одне поле';
+                bulkModeLabel.textContent = 'Режим: два поля';
+                previewToggleButton.style.display = 'inline-block';
+                previewToggleButton.disabled = true;
+                previewToggleButton.textContent = 'Детальніше';
+                previewCollapsed = true;
+                updatePairPreview();
+            } else {
+                combinedInputWrapper.style.display = 'block';
+                splitInputsWrapper.style.display = 'none';
+                pairPreview.style.display = 'none';
+                pairPreview.innerHTML = '';
+                toggleBulkModeButton.textContent = 'Перейти до двох полів';
+                bulkModeLabel.textContent = 'Режим: одне поле';
+                previewToggleButton.style.display = 'none';
+                previewToggleButton.disabled = true;
+                previewToggleButton.textContent = 'Детальніше';
+                previewCollapsed = true;
+            }
+        }
+
+        function showMessage(text, type = 'error') {
+            messageBox.textContent = text;
+            messageBox.classList.remove('error', 'success');
+            messageBox.classList.add(type === 'success' ? 'success' : 'error');
+            messageBox.style.display = 'block';
+        }
+
+        function clearMessage() {
+            messageBox.style.display = 'none';
+            messageBox.textContent = '';
+            messageBox.classList.remove('error', 'success');
+        }
+
+        function hasEmptyBetweenValues(lines) {
+            let firstNonEmpty = -1;
+            let lastNonEmpty = -1;
+            for (let i = 0; i < lines.length; i++) {
+                if (lines[i].trim()) {
+                    if (firstNonEmpty === -1) firstNonEmpty = i;
+                    lastNonEmpty = i;
+                }
+            }
+            if (firstNonEmpty === -1 || firstNonEmpty === lastNonEmpty) {
+                return false;
+            }
+            for (let i = firstNonEmpty; i <= lastNonEmpty; i++) {
+                if (!lines[i].trim()) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function updatePairPreview() {
+            if (bulkMode !== 'split') {
+                pairPreview.style.display = 'none';
+                pairPreview.innerHTML = '';
+                previewToggleButton.style.display = 'none';
+                previewToggleButton.disabled = true;
+                return;
+            }
+
+            const productLines = splitProductsInput.value.split('\n');
+            const offerLines = splitOffersInput.value.split('\n');
+            const maxLength = Math.max(productLines.length, offerLines.length);
+            const hasData = maxLength > 0 && (splitProductsInput.value.trim() || splitOffersInput.value.trim());
+
+            if (!hasData) {
+                pairPreview.style.display = 'none';
+                pairPreview.innerHTML = '';
+                previewToggleButton.disabled = true;
+                previewToggleButton.textContent = 'Детальніше';
+                previewCollapsed = true;
+                return;
+            }
+
+            previewToggleButton.style.display = 'inline-block';
+            previewToggleButton.disabled = false;
+
+            pairPreview.style.display = 'block';
+            pairPreview.innerHTML = '';
+            for (let i = 0; i < maxLength; i++) {
+                const row = document.createElement('div');
+                row.className = 'pair-row';
+
+                const productValue = document.createElement('div');
+                productValue.className = 'pair-value';
+                productValue.textContent = (productLines[i] || '').trim();
+
+                const connector = document.createElement('div');
+                connector.className = 'pair-connector';
+
+                const offerValue = document.createElement('div');
+                offerValue.className = 'pair-value';
+                offerValue.textContent = (offerLines[i] || '').trim();
+
+                row.appendChild(productValue);
+                row.appendChild(connector);
+                row.appendChild(offerValue);
+                pairPreview.appendChild(row);
+            }
+
+            pairPreview.style.display = previewCollapsed ? 'none' : 'block';
+        }
+
+        function addBulkRows() {
+            clearMessage();
+
+            if (bulkMode === 'split') {
+                const productLinesRaw = splitProductsInput.value.split('\n');
+                const offerLinesRaw = splitOffersInput.value.split('\n');
+
+                if (hasEmptyBetweenValues(productLinesRaw)) {
+                    showMessage('У списку product_id є порожні рядки між значеннями. Приберіть їх.');
+                    return;
+                }
+
+                if (hasEmptyBetweenValues(offerLinesRaw)) {
+                    showMessage('У списку merchant_offer_code є порожні рядки між значеннями. Приберіть їх.');
+                    return;
+                }
+
+                const productLines = productLinesRaw.map(line => line.trim()).filter(Boolean);
+                const offerLines = offerLinesRaw.map(line => line.trim()).filter(Boolean);
+
+                if (productLines.length === 0 || offerLines.length === 0) {
+                    showMessage('Заповніть обидва списки перед додаванням.');
+                    return;
+                }
+
+                if (productLines.length !== offerLines.length) {
+                    showMessage(`Кількість product_id (${productLines.length}) не збігається з кількістю merchant_offer_code (${offerLines.length}).`);
+                    return;
+                }
+
+                productLines.forEach((productId, idx) => {
+                    allData.push({
+                        rowIndex: nextRowIndex++,
+                        product_id: productId,
+                        merchant_offer_code: offerLines[idx],
+                        deleted: false,
+                        source: 'manual'
+                    });
+                });
+
+                splitProductsInput.value = '';
+                splitOffersInput.value = '';
+                updatePairPreview();
+                showMessage(`Масово додано рядків: ${productLines.length}`, 'success');
+                document.getElementById('fileInfo').textContent = `Масово додано рядків: ${productLines.length}`;
+                findAndDisplayDuplicates();
+                return;
+            }
+
+            const rawText = bulkInput.value.trim();
+            if (!rawText) {
+                showMessage('Вставте хоча б один рядок перед масовим додаванням.');
+                return;
+            }
+
+            const lines = rawText.split('\n').map(line => line.trim()).filter(Boolean);
+            let added = 0;
+            let skipped = 0;
+
+            lines.forEach(line => {
+                let delimiter = '';
+                if (line.includes(';')) {
+                    delimiter = ';';
+                } else if (line.includes(',')) {
+                    delimiter = ',';
+                } else {
+                    const parts = line.split(/\s+/).filter(Boolean);
+                    if (parts.length >= 2) {
+                        allData.push({
+                            rowIndex: nextRowIndex++,
+                            product_id: parts[0],
+                            merchant_offer_code: parts[1],
+                            deleted: false,
+                            source: 'manual'
+                        });
+                        added++;
+                        return;
+                    }
+                    skipped++;
+                    return;
+                }
+
+                const parts = line.split(delimiter).map(v => v.trim());
+                if (parts.length < 2 || !parts[0] || !parts[1]) {
+                    skipped++;
+                    return;
+                }
+
+                allData.push({
+                    rowIndex: nextRowIndex++,
+                    product_id: parts[0],
+                    merchant_offer_code: parts[1],
+                    deleted: false,
+                    source: 'manual'
+                });
+                added++;
+            });
+
+            if (!added) {
+                showMessage('Не вдалося додати жодного рядка. Перевірте формат даних.');
+                return;
+            }
+
+            bulkInput.value = '';
+            const infoMessage = skipped
+                ? `Масово додано рядків: ${added}. Пропущено: ${skipped}`
+                : `Масово додано рядків: ${added}`;
+            document.getElementById('fileInfo').textContent = infoMessage;
+            showMessage(infoMessage, 'success');
+
+            findAndDisplayDuplicates();
+        }
+
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            uploadedFileName = file.name || 'filtered_data.csv';
+            document.getElementById('fileInfo').textContent = `Файл: ${uploadedFileName} (${(file.size / 1024).toFixed(2)} KB)`;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                const content = e.target.result;
+                parseCSV(content);
+            };
+            reader.readAsText(file, 'UTF-8');
+        }
+
+        function parseCSV(content) {
+            // Remove BOM if it exists to keep header names clean
+            const normalizedContent = content.replace(/^\uFEFF/, '');
+            const lines = normalizedContent.split('\n').filter(line => line.trim());
+            if (lines.length < 2) {
+                alert('CSV файл повинен містити хоча б заголовки та один рядок даних');
+                return;
+            }
+
+            // Визначаємо роздільник
+            const firstLine = lines[0];
+            const delimiter = firstLine.includes(';') ? ';' : ',';
+
+            // Парсимо заголовки
+            originalHeaders = lines[0].split(delimiter).map(h => h.trim());
+
+            // Парсимо дані
+            allData = [];
+            for (let i = 1; i < lines.length; i++) {
+                const values = lines[i].split(delimiter).map(v => v.trim());
+                if (values.length >= 2) {
+                    allData.push({
+                        rowIndex: i,
+                        product_id: values[0],
+                        merchant_offer_code: values[1],
+                        deleted: false,
+                        source: 'file'
+                    });
+                }
+            }
+
+            nextRowIndex = lines.length;
+            findAndDisplayDuplicates();
+        }
+
+        function findAndDisplayDuplicates() {
+            // Групуємо дублікати по merchant_offer_code
+            const groups = {};
+            allData.forEach((row, index) => {
+                const key = row.merchant_offer_code;
+                if (!groups[key]) {
+                    groups[key] = [];
+                }
+                groups[key].push({ ...row, arrayIndex: index });
+            });
+
+            // Фільтруємо тільки дублікати (де більше 1 запису)
+            const duplicates = {};
+            Object.keys(groups).forEach(key => {
+                if (groups[key].length > 1) {
+                    duplicates[key] = groups[key];
+                }
+            });
+
+            // Оновлюємо статистику
+            document.getElementById('stats').style.display = 'grid';
+            document.getElementById('totalRows').textContent = allData.length;
+            document.getElementById('uniqueValues').textContent = Object.keys(groups).length;
+            document.getElementById('duplicateCount').textContent = Object.keys(duplicates).length;
+
+            // Показуємо контроли якщо є дані
+            document.getElementById('controls').style.display = allData.length ? 'flex' : 'none';
+
+            // Відображаємо дублікати
+            displayDuplicates(duplicates);
+        }
+
+        function displayDuplicates(duplicates) {
+            const container = document.getElementById('duplicatesContainer');
+            container.innerHTML = '';
+
+            const duplicateKeys = Object.keys(duplicates);
+
+            if (duplicateKeys.length === 0) {
+                container.innerHTML = '<div class="no-data">✅ Дублікатів не знайдено!</div>';
+                return;
+            }
+
+            duplicateKeys.forEach(key => {
+                const group = duplicates[key];
+                const groupDiv = document.createElement('div');
+                groupDiv.className = 'duplicate-group';
+
+                const header = document.createElement('div');
+                header.className = 'group-header';
+                header.innerHTML = `
+                    <span>Merchant Offer Code: <strong>${key}</strong></span>
+                    <span class="group-count">${group.length} дублікатів</span>
+                `;
+                groupDiv.appendChild(header);
+
+                const tableContainer = document.createElement('div');
+                tableContainer.className = 'table-container';
+
+                const table = document.createElement('table');
+                const hasDeleted = group.some(row => row.deleted);
+                const rowsHtml = group.map(row => {
+                    const rowClass = row.deleted ? 'row-deleted' : (hasDeleted ? 'row-active' : '');
+                    const buttonClass = row.deleted ? 'delete-btn deleted' : 'delete-btn';
+                    const buttonLabel = row.deleted ? 'Видалений' : 'Видалити';
+                    return `
+                        <tr id="row-${row.arrayIndex}" class="${rowClass}">
+                            <td>${row.rowIndex}</td>
+                            <td>
+                                <a class="akeneo-link" href="https://akeneo.murkit.com.ua/#/enrich/product/${row.product_id}" target="_blank" rel="noopener noreferrer">
+                                    Akeneo
+                                </a>
+                            </td>
+                            <td>${row.product_id}</td>
+                            <td>${row.merchant_offer_code}</td>
+                            <td>
+                                <button class="${buttonClass}" onclick="toggleRowDeletion(${row.arrayIndex})">
+                                    ${buttonLabel}
+                                </button>
+                            </td>
+                        </tr>
+                    `;
+                }).join('');
+                table.innerHTML = `
+                    <thead>
+                        <tr>
+                            <th>Номер рядка</th>
+                            <th>Akeneo</th>
+                            <th>Product ID</th>
+                            <th>Merchant Offer Code</th>
+                            <th>Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                `;
+
+                tableContainer.appendChild(table);
+                groupDiv.appendChild(tableContainer);
+                container.appendChild(groupDiv);
+            });
+        }
+
+        function toggleRowDeletion(arrayIndex) {
+            const row = allData[arrayIndex];
+            if (!row) return;
+            row.deleted = !row.deleted;
+            findAndDisplayDuplicates();
+        }
+
+        function exportCSV() {
+            if (allData.length === 0) {
+                alert('Немає даних для експорту');
+                return;
+            }
+
+            // Формуємо CSV з роздільником ;
+            let csv = originalHeaders.join(';') + '\n';
+            allData.forEach(row => {
+                if (!row.deleted) {
+                    csv += `${row.product_id};${row.merchant_offer_code}\n`;
+                }
+            });
+
+            const activeManualCount = allData.filter(row => row.source === 'manual' && !row.deleted).length;
+            const deletedCount = allData.filter(row => row.deleted).length;
+            const totalActiveCount = allData.filter(row => !row.deleted).length;
+            const prefixParts = [];
+            if (activeManualCount > 0) {
+                prefixParts.push(`add-${activeManualCount}`);
+            }
+            if (deletedCount > 0) {
+                prefixParts.push(`remove-${deletedCount}`);
+            }
+            if (totalActiveCount > 0) {
+                prefixParts.push(`total-${totalActiveCount}`);
+            }
+            const prefix = prefixParts.length ? prefixParts.join('_') + '_' : '';
+            const finalFileName = `${prefix}${uploadedFileName || 'filtered_data.csv'}`;
+
+            // Створюємо і завантажуємо файл
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.setAttribute('href', url);
+            link.setAttribute('download', finalFileName);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+    </script>
+</body>
+
+</html>
