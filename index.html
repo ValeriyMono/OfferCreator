@@ -266,6 +266,57 @@
             background: #333;
         }
 
+        .search-section {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .search-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .search-form {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            margin-bottom: 15px;
+        }
+
+        .search-form select,
+        .search-form input {
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+        }
+
+        .search-form select {
+            min-width: 160px;
+        }
+
+        .search-form input {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .search-results {
+            border: 1px dashed #d0d0d0;
+            border-radius: 8px;
+            padding: 12px;
+            background: #fff;
+        }
+
+        .search-results .empty-message {
+            color: #666;
+            font-size: 14px;
+        }
+
         .split-inputs {
             display: none;
             gap: 20px;
@@ -511,6 +562,21 @@
             </div>
         </div>
 
+        <div class="search-section">
+            <h2>🔎 Пошук рядка</h2>
+            <form id="searchForm" class="search-form">
+                <select id="searchType">
+                    <option value="product">Product ID</option>
+                    <option value="merchant">Merchant Offer Code</option>
+                </select>
+                <input type="text" id="searchQuery" placeholder="Введіть значення для пошуку">
+                <button type="submit" class="btn-primary">Знайти</button>
+            </form>
+            <div id="searchResults" class="search-results">
+                <div class="empty-message">Виконайте пошук, щоб побачити результат</div>
+            </div>
+        </div>
+
         <div class="controls" id="controls" style="display: none;">
             <button class="btn-success" onclick="exportCSV()">💾 Вивантажити CSV</button>
         </div>
@@ -527,6 +593,7 @@
         let uploadedFileName = 'filtered_data.csv';
         let duplicateProductIds = new Set();
         let duplicateOfferCodes = new Set();
+        let lastSearch = null;
 
         const messageBox = document.getElementById('messageBox');
         const bulkInput = document.getElementById('bulkInput');
@@ -538,6 +605,10 @@
         const bulkModeLabel = document.getElementById('bulkModeLabel');
         const combinedInputWrapper = document.getElementById('combinedInputWrapper');
         const splitInputsWrapper = document.getElementById('splitInputs');
+        const searchForm = document.getElementById('searchForm');
+        const searchTypeSelect = document.getElementById('searchType');
+        const searchQueryInput = document.getElementById('searchQuery');
+        const searchResultsContainer = document.getElementById('searchResults');
 
         document.getElementById('fileInput').addEventListener('change', handleFileSelect);
         document.getElementById('bulkAddButton').addEventListener('click', function (event) {
@@ -557,6 +628,10 @@
             previewCollapsed = !previewCollapsed;
             previewToggleButton.textContent = previewCollapsed ? 'Детальніше' : 'Приховати';
             updatePairPreview();
+        });
+        searchForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            handleSearch();
         });
         setBulkMode('combined');
 
@@ -784,6 +859,81 @@
             findAndDisplayDuplicates();
         }
 
+        function handleSearch() {
+            const query = searchQueryInput.value.trim();
+            if (!query) {
+                lastSearch = null;
+                renderSearchResults('Введіть значення для пошуку');
+                return;
+            }
+
+            lastSearch = {
+                type: searchTypeSelect.value,
+                value: query.toLowerCase()
+            };
+            renderSearchResults();
+        }
+
+        function renderSearchResults(optionalMessage) {
+            if (!lastSearch) {
+                searchResultsContainer.innerHTML = `<div class="empty-message">${optionalMessage || 'Виконайте пошук, щоб побачити результат'}</div>`;
+                return;
+            }
+
+            const matches = allData.filter(row => {
+                const fieldValue = lastSearch.type === 'product' ? row.product_id : row.merchant_offer_code;
+                return fieldValue.toLowerCase() === lastSearch.value;
+            });
+
+            if (!matches.length) {
+                searchResultsContainer.innerHTML = '<div class="empty-message">Нічого не знайдено за цим запитом.</div>';
+                return;
+            }
+
+            const hasDeleted = matches.some(row => row.deleted);
+            const rowsHtml = matches.map(row => {
+                const rowClass = row.deleted ? 'row-deleted' : (hasDeleted ? 'row-active' : '');
+                const buttonClass = row.deleted ? 'delete-btn deleted' : 'delete-btn';
+                const buttonLabel = row.deleted ? 'Видалений' : 'Видалити';
+                const productIndicator = duplicateProductIds.has(row.product_id) ? '<span class="duplicate-indicator"></span>' : '';
+                const merchantIndicator = duplicateOfferCodes.has(row.merchant_offer_code) ? '<span class="duplicate-indicator"></span>' : '';
+                return `
+                    <tr id="search-row-${row.arrayIndex}" class="${rowClass}">
+                        <td>${row.rowIndex}</td>
+                        <td>
+                            <a class="akeneo-link" href="https://akeneo.murkit.com.ua/#/enrich/product/${row.product_id}" target="_blank" rel="noopener noreferrer">
+                                Akeneo
+                            </a>
+                        </td>
+                        <td>${productIndicator}${row.product_id}</td>
+                        <td>${merchantIndicator}${row.merchant_offer_code}</td>
+                        <td>
+                            <button class="${buttonClass}" onclick="toggleRowDeletion(${row.arrayIndex})">
+                                ${buttonLabel}
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+
+            searchResultsContainer.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Номер рядка</th>
+                            <th>Akeneo</th>
+                            <th>Product ID</th>
+                            <th>Merchant Offer Code</th>
+                            <th>Дія</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            `;
+        }
+
         function handleFileSelect(event) {
             const file = event.target.files[0];
             if (!file) return;
@@ -898,6 +1048,7 @@
 
             // Відображаємо дублікати
             displayDuplicates(duplicates);
+            renderSearchResults(lastSearch ? undefined : 'Виконайте пошук, щоб побачити результат');
         }
 
         function displayDuplicates(duplicates) {
