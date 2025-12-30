@@ -109,9 +109,37 @@
 
         .controls {
             display: flex;
+            justify-content: space-between;
+            align-items: center;
             gap: 10px;
             margin-bottom: 20px;
             flex-wrap: wrap;
+        }
+
+        .delete-all-btn {
+            position: relative;
+        }
+
+        .delete-all-tooltip {
+            position: absolute;
+            bottom: 120%;
+            left: 0;
+            z-index: 10;
+            background: #d9534f;
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+            width: max-content;
+            max-width: 240px;
+        }
+
+        .delete-all-btn:hover .delete-all-tooltip {
+            opacity: 1;
         }
 
         button {
@@ -288,21 +316,49 @@
             margin-bottom: 15px;
         }
 
-        .search-form select,
-        .search-form input {
+        .search-form input,
+        .search-form textarea {
             padding: 10px;
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 14px;
         }
 
-        .search-form select {
-            min-width: 160px;
-        }
-
-        .search-form input {
+        .search-form input,
+        .search-form textarea {
             flex: 1;
             min-width: 220px;
+        }
+
+        .search-form textarea {
+            min-height: 110px;
+            resize: vertical;
+        }
+
+        .search-type-buttons {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .search-type-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .search-type-btn:hover {
+            background: #333;
+        }
+
+        .search-type-btn.active {
+            background: #4caf50;
+            color: #fff;
         }
 
         .search-results {
@@ -565,11 +621,12 @@
         <div class="search-section">
             <h2>🔎 Пошук рядка</h2>
             <form id="searchForm" class="search-form">
-                <select id="searchType">
-                    <option value="product">Product ID</option>
-                    <option value="merchant">Merchant Offer Code</option>
-                </select>
-                <input type="text" id="searchQuery" placeholder="Введіть значення для пошуку">
+                <div class="search-type-buttons">
+                    <button type="button" class="search-type-btn active" data-search-type="product">Product ID</button>
+                    <button type="button" class="search-type-btn" data-search-type="merchant">Merchant Offer
+                        Code</button>
+                </div>
+                <textarea id="searchQuery" placeholder="Вводьте по одному значенню на рядок"></textarea>
                 <button type="submit" class="btn-primary">Знайти</button>
             </form>
             <div id="searchResults" class="search-results">
@@ -579,6 +636,10 @@
 
         <div class="controls" id="controls" style="display: none;">
             <button class="btn-success" onclick="exportCSV()">💾 Вивантажити CSV</button>
+            <button class="btn-danger delete-all-btn" onclick="deleteAllRows()">
+                🧹 Видалити все
+                <span class="delete-all-tooltip">Видалить всі офери та залишить тільки шапку</span>
+            </button>
         </div>
 
         <div id="duplicatesContainer"></div>
@@ -594,6 +655,7 @@
         let duplicateProductIds = new Set();
         let duplicateOfferCodes = new Set();
         let lastSearch = null;
+        let hasDataLoaded = false;
 
         const messageBox = document.getElementById('messageBox');
         const bulkInput = document.getElementById('bulkInput');
@@ -606,9 +668,10 @@
         const combinedInputWrapper = document.getElementById('combinedInputWrapper');
         const splitInputsWrapper = document.getElementById('splitInputs');
         const searchForm = document.getElementById('searchForm');
-        const searchTypeSelect = document.getElementById('searchType');
+        const searchTypeButtons = document.querySelectorAll('[data-search-type]');
         const searchQueryInput = document.getElementById('searchQuery');
         const searchResultsContainer = document.getElementById('searchResults');
+        let currentSearchType = 'product';
 
         document.getElementById('fileInput').addEventListener('change', handleFileSelect);
         document.getElementById('bulkAddButton').addEventListener('click', function (event) {
@@ -632,6 +695,13 @@
         searchForm.addEventListener('submit', function (event) {
             event.preventDefault();
             handleSearch();
+        });
+        searchTypeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                currentSearchType = button.dataset.searchType;
+                searchTypeButtons.forEach(btn => btn.classList.remove('active'));
+                button.classList.add('active');
+            });
         });
         setBulkMode('combined');
 
@@ -788,6 +858,7 @@
 
                 splitProductsInput.value = '';
                 splitOffersInput.value = '';
+                hasDataLoaded = true;
                 updatePairPreview();
                 showMessage(`Масово додано рядків: ${productLines.length}`, 'success');
                 document.getElementById('fileInfo').textContent = `Масово додано рядків: ${productLines.length}`;
@@ -854,6 +925,7 @@
                 ? `Масово додано рядків: ${added}. Пропущено: ${skipped}`
                 : `Масово додано рядків: ${added}`;
             document.getElementById('fileInfo').textContent = infoMessage;
+            hasDataLoaded = true;
             showMessage(infoMessage, 'success');
 
             findAndDisplayDuplicates();
@@ -867,9 +939,16 @@
                 return;
             }
 
+            const values = query.split('\n').map(val => val.trim()).filter(Boolean);
+            if (!values.length) {
+                lastSearch = null;
+                renderSearchResults('Введіть значення для пошуку');
+                return;
+            }
+
             lastSearch = {
-                type: searchTypeSelect.value,
-                value: query.toLowerCase()
+                type: currentSearchType,
+                values: values.map(val => val.toLowerCase())
             };
             renderSearchResults();
         }
@@ -880,9 +959,12 @@
                 return;
             }
 
-            const matches = allData.filter(row => {
+            const matches = [];
+            allData.forEach((row, index) => {
                 const fieldValue = lastSearch.type === 'product' ? row.product_id : row.merchant_offer_code;
-                return fieldValue.toLowerCase() === lastSearch.value;
+                if (lastSearch.values.includes(fieldValue.toLowerCase())) {
+                    matches.push({ row, index });
+                }
             });
 
             if (!matches.length) {
@@ -890,15 +972,16 @@
                 return;
             }
 
-            const hasDeleted = matches.some(row => row.deleted);
-            const rowsHtml = matches.map(row => {
+            const hasDeleted = matches.some(match => match.row.deleted);
+            const rowsHtml = matches.map(match => {
+                const row = match.row;
                 const rowClass = row.deleted ? 'row-deleted' : (hasDeleted ? 'row-active' : '');
                 const buttonClass = row.deleted ? 'delete-btn deleted' : 'delete-btn';
                 const buttonLabel = row.deleted ? 'Видалений' : 'Видалити';
                 const productIndicator = duplicateProductIds.has(row.product_id) ? '<span class="duplicate-indicator"></span>' : '';
                 const merchantIndicator = duplicateOfferCodes.has(row.merchant_offer_code) ? '<span class="duplicate-indicator"></span>' : '';
                 return `
-                    <tr id="search-row-${row.arrayIndex}" class="${rowClass}">
+                    <tr id="search-row-${match.index}" class="${rowClass}">
                         <td>${row.rowIndex}</td>
                         <td>
                             <a class="akeneo-link" href="https://akeneo.murkit.com.ua/#/enrich/product/${row.product_id}" target="_blank" rel="noopener noreferrer">
@@ -908,13 +991,20 @@
                         <td>${productIndicator}${row.product_id}</td>
                         <td>${merchantIndicator}${row.merchant_offer_code}</td>
                         <td>
-                            <button class="${buttonClass}" onclick="toggleRowDeletion(${row.arrayIndex})">
+                            <button class="${buttonClass}" onclick="toggleRowDeletion(${match.index})">
                                 ${buttonLabel}
                             </button>
                         </td>
                     </tr>
                 `;
             }).join('');
+
+            const totalMatches = matches.length;
+            const removeButton = `
+                <button class="btn-danger" onclick="removeSearchResults()" style="margin-top: 10px;">
+                    Видалити знайдені рядки (${totalMatches})
+                </button>
+            `;
 
             searchResultsContainer.innerHTML = `
                 <table>
@@ -931,6 +1021,7 @@
                         ${rowsHtml}
                     </tbody>
                 </table>
+                ${removeButton}
             `;
         }
 
@@ -981,6 +1072,7 @@
             }
 
             nextRowIndex = lines.length;
+            hasDataLoaded = true;
             findAndDisplayDuplicates();
         }
 
@@ -1044,7 +1136,7 @@
             document.getElementById('duplicateCount').textContent = duplicates.length;
 
             // Показуємо контроли якщо є дані
-            document.getElementById('controls').style.display = allData.length ? 'flex' : 'none';
+            document.getElementById('controls').style.display = hasDataLoaded ? 'flex' : 'none';
 
             // Відображаємо дублікати
             displayDuplicates(duplicates);
@@ -1140,12 +1232,55 @@
             findAndDisplayDuplicates();
         }
 
-        function exportCSV() {
-            if (allData.length === 0) {
-                alert('Немає даних для експорту');
+        function removeSearchResults() {
+            if (!lastSearch) {
+                showMessage('Спочатку виконайте пошук.', 'error');
                 return;
             }
 
+            const indicesToMark = [];
+            allData.forEach((row, index) => {
+                const fieldValue = lastSearch.type === 'product' ? row.product_id : row.merchant_offer_code;
+                if (lastSearch.values.includes(fieldValue.toLowerCase())) {
+                    indicesToMark.push(index);
+                }
+            });
+
+            if (!indicesToMark.length) {
+                showMessage('Немає рядків для позначення за останнім пошуком.', 'error');
+                return;
+            }
+
+            indicesToMark.forEach(index => {
+                if (allData[index]) {
+                    allData[index].deleted = true;
+                }
+            });
+
+            showMessage(`Позначено як видалені: ${indicesToMark.length}`, 'success');
+            findAndDisplayDuplicates();
+        }
+
+        function deleteAllRows() {
+            if (!allData.length) {
+                showMessage('Немає даних для видалення.', 'error');
+                return;
+            }
+            if (!confirm('Видалити всі рядки?')) {
+                return;
+            }
+            allData = [];
+            nextRowIndex = 1;
+            duplicateProductIds.clear();
+            duplicateOfferCodes.clear();
+            lastSearch = null;
+            hasDataLoaded = true;
+            document.getElementById('fileInfo').textContent = 'Дані очищено';
+            showMessage('Усі рядки видалено.', 'success');
+            findAndDisplayDuplicates();
+        }
+
+        function exportCSV() {
             // Формуємо CSV з роздільником ;
             let csv = originalHeaders.join(';') + '\n';
             allData.forEach(row => {
@@ -1166,6 +1301,9 @@
             }
             if (totalActiveCount > 0) {
                 prefixParts.push(`total-${totalActiveCount}`);
+            }
+            if (!prefixParts.length && deletedCount === 0) {
+                prefixParts.push('empty0');
             }
             const prefix = prefixParts.length ? prefixParts.join('_') + '_' : '';
             const finalFileName = `${prefix}${uploadedFileName || 'filtered_data.csv'}`;
