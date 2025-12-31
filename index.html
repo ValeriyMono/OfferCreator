@@ -237,6 +237,12 @@
             color: #1b5e20;
         }
 
+        .notice.warning {
+            background: #fff9e6;
+            border: 1px solid #ffe29a;
+            color: #8a6500;
+        }
+
         .bulk-entry {
             background: #f9f9f9;
             border: 1px solid #e0e0e0;
@@ -327,9 +333,9 @@
 
         .search-form {
             display: flex;
+            flex-direction: column;
             gap: 10px;
-            flex-wrap: wrap;
-            align-items: flex-end;
+            align-items: stretch;
             margin-bottom: 15px;
         }
 
@@ -339,12 +345,7 @@
             border-radius: 6px;
             border: 1px solid #ccc;
             font-size: 14px;
-        }
-
-        .search-form input,
-        .search-form textarea {
-            flex: 1;
-            min-width: 220px;
+            width: 100%;
         }
 
         .search-form textarea {
@@ -352,10 +353,15 @@
             resize: vertical;
         }
 
+        .search-form .btn-primary {
+            align-self: flex-start;
+        }
+
         .search-type-buttons {
             display: flex;
-            flex-direction: column;
             gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
         }
 
         .search-type-btn {
@@ -586,6 +592,305 @@
             border-radius: 12px;
             font-size: 12px;
         }
+
+        .replacement-section {
+            background: #f9f9f9;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 25px;
+        }
+
+        .replacement-section h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #000;
+        }
+
+        .replacement-mode-buttons {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+        }
+
+        .replacement-mode-btn {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 10px 18px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        .replacement-mode-btn.active {
+            background: #4caf50;
+        }
+
+        .replacement-inputs {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .replacement-inputs .input-col {
+            flex: 1;
+            min-width: 240px;
+        }
+
+        .replacement-inputs label {
+            display: block;
+            font-size: 13px;
+            color: #555;
+            margin-bottom: 6px;
+        }
+
+        .replacement-inputs textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid #ccc;
+            font-size: 14px;
+            font-family: inherit;
+            resize: vertical;
+        }
+
+        .replacement-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .replacement-result {
+            border: 1px dashed #d0d0d0;
+            border-radius: 8px;
+            padding: 15px;
+            background: #fff;
+            margin-top: 15px;
+        }
+
+        .replacement-summary {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+        }
+
+        .replacement-details {
+            margin-top: 10px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow-x: auto;
+            background: #fff;
+            display: none;
+        }
+
+        .replacement-details-toggle {
+            margin-top: 10px;
+        }
+
+        .replacement-meta {
+            font-size: 13px;
+            color: #555;
+        }
+
+        .replacement-details table {
+            margin: 0;
+            table-layout: fixed;
+        }
+
+        .replacement-row--missing td {
+            background: #ffe5e5;
+        }
+
+        .replacement-row--conflict td {
+            background: #fff1d6;
+        }
+
+        .replacement-row--target-exists td {
+            background: #fff7e0;
+        }
+
+        .replacement-details .akeneo-link {
+            margin-top: 6px;
+            display: inline-block;
+        }
+
+        .collapsible-section .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 0;
+            padding: 12px 16px;
+            background: #f2f2f2;
+            border-radius: 8px;
+            cursor: pointer;
+            user-select: none;
+            min-height: 60px;
+        }
+
+        .section-toggle {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .section-toggle:hover {
+            background: #333;
+        }
+
+        .section-body {
+            display: none;
+            margin-top: 12px;
+        }
+
+        .section-body.expanded {
+            display: block;
+        }
+
+        .collapsible-section h2 {
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .section-indicator {
+            font-size: 20px;
+            font-weight: 600;
+            color: #000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 24px;
+        }
+
+        .conflict-actions {
+            margin-top: 6px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+        }
+
+        .conflict-actions button {
+            background: #000;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 15px;
+            transition: background 0.2s;
+        }
+
+        .conflict-actions button.secondary {
+            background: #555;
+        }
+
+        .conflict-actions button:hover {
+            background: #333;
+        }
+
+        .replacement-details h3 {
+            margin: 0 0 8px;
+            font-size: 16px;
+            color: #000;
+        }
+
+        .conflict-info {
+            margin: 8px 0 0;
+            padding: 10px 6px;
+            border: 1px dashed #d0d0d0;
+            border-radius: 6px;
+            background: #fafafa;
+            display: inline-flex;
+            flex-direction: column;
+        }
+
+        .conflict-info-line {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 4px 8px;
+            font-size: 13px;
+            margin-bottom: 6px;
+            width: 100%;
+        }
+
+        .conflict-info-line span:first-child {
+            font-weight: 500;
+            color: #444;
+            margin-right: 6px;
+            white-space: nowrap;
+            width: 140px;
+            text-align: left;
+        }
+
+        .conflict-info-line span:last-child {
+            font-weight: 600;
+            font-size: 13px;
+            flex: 1;
+            word-break: break-word;
+        }
+
+        .replacement-details table thead th {
+            text-align: center;
+        }
+
+        .status-message {
+            font-weight: 500;
+            margin-bottom: 8px;
+            color: #222;
+        }
+
+        .replacement-details table td,
+        .replacement-details table th {
+            vertical-align: middle;
+        }
+
+        .product-value {
+            word-break: break-word;
+            line-height: 1.4;
+            margin: 0 auto;
+        }
+
+        .replacement-details table th:nth-child(1),
+        .replacement-details table td:nth-child(1),
+        .replacement-details table th:nth-child(2),
+        .replacement-details table td:nth-child(2) {
+            width: 25%;
+        }
+
+        .replacement-details table th:nth-child(3),
+        .replacement-details table td:nth-child(3) {
+            width: 50%;
+        }
+
+        .status-cell {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .conflict-actions {
+            flex-direction: column;
+            align-items: stretch;
+        }
+
+        .conflict-actions button {
+            width: 100%;
+            text-align: left;
+        }
     </style>
 </head>
 
@@ -620,48 +925,93 @@
             </div>
         </div>
 
-        <div class="bulk-entry">
-            <h2>➕ Додавання оферів</h2>
-            <div class="mode-switch">
-                <span class="hint" id="bulkModeLabel">Режим: одне поле</span>
-                <button id="toggleBulkMode">Перейти до двох полів</button>
+        <div class="bulk-entry collapsible-section">
+            <div class="section-header" data-section-toggle="bulkSectionBody">
+                <h2>➕ Додавання оферів</h2>
+                <span class="section-indicator">+</span>
             </div>
-            <div id="combinedInputWrapper">
-                <textarea id="bulkInput" placeholder="product_id merchant_offer_code"></textarea>
-            </div>
-            <div id="splitInputs" class="split-inputs">
-                <div class="input-col">
-                    <label for="splitProductsInput">Список product_id</label>
-                    <textarea id="splitProductsInput" placeholder="Кожен product_id з нового рядка"></textarea>
+            <div class="section-body" id="bulkSectionBody">
+                <div class="mode-switch">
+                    <span class="hint" id="bulkModeLabel">Режим: одне поле</span>
+                    <button id="toggleBulkMode">Перейти до двох полів</button>
                 </div>
-                <div class="input-col">
-                    <label for="splitOffersInput">Список merchant_offer_code</label>
-                    <textarea id="splitOffersInput" placeholder="Кожен merchant_offer_code з нового рядка"></textarea>
+                <div id="combinedInputWrapper">
+                    <textarea id="bulkInput" placeholder="product_id merchant_offer_code"></textarea>
                 </div>
-            </div>
-            <button id="togglePreview" class="preview-toggle" style="display: none;">Детальніше</button>
-            <div id="pairPreview" class="pair-preview"></div>
-            <div class="bulk-actions">
-                <span class="hint">Розділяйте значення пробілом, ; або , або вставляйте окремі списки</span>
-                <button id="bulkAddButton">Додати масово</button>
+                <div id="splitInputs" class="split-inputs">
+                    <div class="input-col">
+                        <label for="splitProductsInput">Список product_id</label>
+                        <textarea id="splitProductsInput" placeholder="Кожен product_id з нового рядка"></textarea>
+                    </div>
+                    <div class="input-col">
+                        <label for="splitOffersInput">Список merchant_offer_code</label>
+                        <textarea id="splitOffersInput" placeholder="Кожен merchant_offer_code з нового рядка"></textarea>
+                    </div>
+                </div>
+                <button id="togglePreview" class="preview-toggle" style="display: none;">Детальніше</button>
+                <div id="pairPreview" class="pair-preview"></div>
+                <div class="bulk-actions">
+                    <span class="hint">Розділяйте значення пробілом, ; або , або вставляйте окремі списки</span>
+                    <button id="bulkAddButton">Додати масово</button>
+                </div>
             </div>
         </div>
 
-        <div class="search-section">
-            <h2>🔎 Пошук рядка</h2>
-            <form id="searchForm" class="search-form">
-                <div class="search-type-buttons">
-                    <button type="button" class="search-type-btn active" data-search-type="product">Product ID</button>
-                    <button type="button" class="search-type-btn" data-search-type="merchant">Merchant Offer
-                        Code</button>
-                </div>
-                <textarea id="searchQuery" placeholder="Вводьте по одному значенню на рядок"></textarea>
-                <button type="submit" class="btn-primary">Знайти</button>
-            </form>
-            <div id="searchResults" class="search-results">
-                <div class="empty-message">Виконайте пошук, щоб побачити результат</div>
+        <div class="search-section collapsible-section">
+            <div class="section-header" data-section-toggle="removalSectionBody">
+                <h2>🗑️ Видалення оферів</h2>
+                <span class="section-indicator">+</span>
             </div>
-            <div id="searchWarning" class="search-warning"></div>
+            <div class="section-body" id="removalSectionBody">
+                <form id="searchForm" class="search-form">
+                    <div class="search-type-buttons">
+                        <button type="button" class="search-type-btn active" data-search-type="product">Product ID</button>
+                        <button type="button" class="search-type-btn" data-search-type="merchant">Merchant Offer
+                            Code</button>
+                    </div>
+                    <textarea id="searchQuery" placeholder="Вводьте по одному значенню на рядок"></textarea>
+                    <button type="submit" class="btn-primary">Знайти</button>
+                </form>
+                <div id="searchResults" class="search-results">
+                    <div class="empty-message">Виконайте пошук, щоб побачити результат</div>
+                </div>
+                <div id="searchWarning" class="search-warning"></div>
+            </div>
+        </div>
+
+        <div class="replacement-section collapsible-section">
+            <div class="section-header" data-section-toggle="replacementSectionBody">
+                <h2>♻️ Заміна оферів</h2>
+                <span class="section-indicator">+</span>
+            </div>
+            <div class="section-body" id="replacementSectionBody">
+                <form id="replacementForm">
+                    <div class="replacement-mode-buttons">
+                        <button type="button" class="replacement-mode-btn active" data-replace-type="product">Product ID</button>
+                        <button type="button" class="replacement-mode-btn" data-replace-type="merchant">Merchant Offer Code</button>
+                    </div>
+                    <div class="replacement-inputs">
+                        <div class="input-col">
+                            <label for="replacementSourceInput">Що замінити (поточні значення)</label>
+                            <textarea id="replacementSourceInput" placeholder="Поточні product_id, по одному в рядок"></textarea>
+                        </div>
+                        <div class="input-col">
+                            <label for="replacementTargetInput">На що замінити (нові значення)</label>
+                            <textarea id="replacementTargetInput" placeholder="Нові product_id, по одному в рядок"></textarea>
+                        </div>
+                    </div>
+                    <div class="replacement-actions">
+                        <span class="hint">Лівий список — значення, які хочете знайти й замінити. Правий — значення, на які замінити.</span>
+                        <button type="submit" class="btn-primary">Замінити</button>
+                    </div>
+                </form>
+                <div id="replacementMessage" class="notice" style="display: none; margin-top: 10px;"></div>
+                <div id="replacementResult" class="replacement-result">
+                    <div class="empty-message">Ще не виконувались заміни.</div>
+                </div>
+                <button id="replacementDetailsToggle" class="preview-toggle replacement-details-toggle" style="display: none;">Детальніше</button>
+                <div id="replacementDetails" class="replacement-details"></div>
+            </div>
         </div>
 
         <div class="controls" id="controls" style="display: none;">
@@ -703,6 +1053,18 @@
         const searchResultsContainer = document.getElementById('searchResults');
         let currentSearchType = 'product';
         const searchWarning = document.getElementById('searchWarning');
+        const replacementForm = document.getElementById('replacementForm');
+        const replacementModeButtons = document.querySelectorAll('[data-replace-type]');
+        const replacementTargetInput = document.getElementById('replacementTargetInput');
+        const replacementSourceInput = document.getElementById('replacementSourceInput');
+        const replacementResultBox = document.getElementById('replacementResult');
+        const replacementDetailsContainer = document.getElementById('replacementDetails');
+        const replacementDetailsToggle = document.getElementById('replacementDetailsToggle');
+        const replacementMessageBox = document.getElementById('replacementMessage');
+        let replacementMode = 'product';
+        let lastReplacementModeUsed = 'product';
+        let lastReplacementDetails = [];
+        let replacementDetailsCollapsed = true;
 
         document.getElementById('fileInput').addEventListener('change', handleFileSelect);
         document.getElementById('bulkAddButton').addEventListener('click', function (event) {
@@ -734,7 +1096,25 @@
                 button.classList.add('active');
             });
         });
+        replacementModeButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                setReplacementMode(button.dataset.replaceType);
+            });
+        });
+        replacementForm.addEventListener('submit', function (event) {
+            event.preventDefault();
+            handleReplacement();
+        });
+        replacementDetailsToggle.addEventListener('click', function (event) {
+            event.preventDefault();
+            if (!lastReplacementDetails.length) return;
+            replacementDetailsCollapsed = !replacementDetailsCollapsed;
+            replacementDetailsToggle.textContent = replacementDetailsCollapsed ? 'Детальніше' : 'Приховати';
+            replacementDetailsContainer.style.display = replacementDetailsCollapsed ? 'none' : 'block';
+        });
         setBulkMode('combined');
+        setReplacementMode('product');
+        initializeCollapsibleSections();
 
         function setBulkMode(mode) {
             bulkMode = mode;
@@ -762,6 +1142,20 @@
             }
         }
 
+        function setReplacementMode(mode) {
+            replacementMode = mode;
+            replacementModeButtons.forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.replaceType === mode);
+            });
+            if (mode === 'product') {
+                replacementTargetInput.placeholder = 'Нові product_id, по одному в рядок';
+                replacementSourceInput.placeholder = 'Поточні product_id, по одному в рядок';
+            } else {
+                replacementTargetInput.placeholder = 'Нові merchant_offer_code, по одному в рядок';
+                replacementSourceInput.placeholder = 'Поточні merchant_offer_code, по одному в рядок';
+            }
+        }
+
         function showMessage(text, type = 'error') {
             messageBox.textContent = text;
             messageBox.classList.remove('error', 'success');
@@ -773,6 +1167,552 @@
             messageBox.style.display = 'none';
             messageBox.textContent = '';
             messageBox.classList.remove('error', 'success');
+        }
+
+        function showReplacementMessage(text, type = 'error') {
+            if (!replacementMessageBox) return;
+            replacementMessageBox.textContent = text;
+            replacementMessageBox.classList.remove('error', 'success', 'warning');
+            if (type === 'warning') {
+                replacementMessageBox.classList.add('warning');
+            } else if (type === 'success') {
+                replacementMessageBox.classList.add('success');
+            } else {
+                replacementMessageBox.classList.add('error');
+            }
+            replacementMessageBox.style.display = 'block';
+        }
+
+        function clearReplacementMessage() {
+            if (!replacementMessageBox) return;
+            replacementMessageBox.style.display = 'none';
+            replacementMessageBox.textContent = '';
+            replacementMessageBox.classList.remove('error', 'success', 'warning');
+        }
+
+        function initializeCollapsibleSections() {
+            const headers = document.querySelectorAll('.section-header[data-section-toggle]');
+            headers.forEach(header => {
+                const targetId = header.getAttribute('data-section-toggle');
+                const target = document.getElementById(targetId);
+                if (!target) return;
+                const indicator = header.querySelector('.section-indicator');
+                const setState = (expanded) => {
+                    if (expanded) {
+                        target.classList.add('expanded');
+                        header.classList.add('expanded');
+                        if (indicator) indicator.textContent = '−';
+                    } else {
+                        target.classList.remove('expanded');
+                        header.classList.remove('expanded');
+                        if (indicator) indicator.textContent = '+';
+                    }
+                    header.setAttribute('aria-expanded', expanded.toString());
+                };
+                setState(false);
+                header.addEventListener('click', () => {
+                    const isExpanded = !target.classList.contains('expanded');
+                    setState(isExpanded);
+                });
+            });
+        }
+
+        function handleReplacement() {
+            clearMessage();
+            clearReplacementMessage();
+            if (!allData.length) {
+                showReplacementMessage('Спочатку додайте або завантажте дані перед заміною.');
+                return;
+            }
+
+            const { pairs, error } = parseReplacementPairs();
+            if (error) {
+                showReplacementMessage(error);
+                return;
+            }
+            if (!pairs.length) {
+                showReplacementMessage('Додайте хоча б одну пару для заміни.');
+                return;
+            }
+
+            let replacedRows = 0;
+            let missingCount = 0;
+            let needsReviewCount = 0;
+            const details = [];
+
+            pairs.forEach(pair => {
+                const matches = [];
+                const targetMatches = [];
+                allData.forEach((row, index) => {
+                    const comparisonValue = replacementMode === 'product' ? row.product_id : row.merchant_offer_code;
+                    if (comparisonValue === pair.source) {
+                        matches.push({ original: { ...row }, index });
+                    }
+                    if (comparisonValue === pair.target) {
+                        targetMatches.push({ ...row, arrayIndex: index });
+                    }
+                });
+
+                if (!matches.length) {
+                    missingCount++;
+                    const targetContext = targetMatches.map(match => ({
+                        product_id: match.product_id,
+                        merchant_offer_code: match.merchant_offer_code
+                    }));
+                    const statusValue = targetContext.length ? 'targetExists' : 'missing';
+                    if (statusValue === 'targetExists') {
+                        needsReviewCount++;
+                    }
+                    details.push({
+                        status: targetContext.length ? 'targetExists' : 'missing',
+                        oldProductId: replacementMode === 'product' ? pair.source : '',
+                        newProductId: replacementMode === 'product'
+                            ? pair.target
+                            : (targetContext[0]?.product_id || ''),
+                        oldOfferCode: replacementMode === 'merchant' ? pair.source : '',
+                        newOfferCode: replacementMode === 'merchant' ? pair.target : '',
+                        originalValue: pair.source,
+                        targetValue: pair.target,
+                        targetContext,
+                        mode: replacementMode
+                    });
+                    return;
+                }
+
+                const conflict = replacementMode === 'product'
+                    ? targetMatches.some(match => match.product_id !== pair.source)
+                    : targetMatches.some(match => match.merchant_offer_code !== pair.source);
+
+                const targetContext = targetMatches.map(match => ({
+                    product_id: match.product_id,
+                    merchant_offer_code: match.merchant_offer_code,
+                    arrayIndex: match.arrayIndex
+                }));
+
+                matches.forEach(match => {
+                    if (conflict) {
+                        needsReviewCount++;
+                        details.push({
+                            status: 'conflict',
+                            oldProductId: match.original.product_id,
+                            newProductId: replacementMode === 'product'
+                                ? pair.target
+                                : (targetMatches[0]?.product_id || ''),
+                            oldOfferCode: match.original.merchant_offer_code,
+                            newOfferCode: replacementMode === 'product'
+                                ? (targetMatches[0]?.merchant_offer_code || '')
+                                : pair.target,
+                            originalValue: pair.source,
+                            targetValue: pair.target,
+                            targetContext,
+                            mode: replacementMode,
+                            conflictInfo: {
+                                sourceIndex: match.index,
+                                targetIndices: Array.from(new Set(targetMatches.map(row => row.arrayIndex))),
+                                originalRow: { ...match.original }
+                            }
+                        });
+                        return;
+                    }
+
+                    if (replacementMode === 'product') {
+                        allData[match.index].product_id = pair.target;
+                    } else {
+                        allData[match.index].merchant_offer_code = pair.target;
+                    }
+                    replacedRows++;
+                    const updatedRow = allData[match.index];
+                    details.push({
+                        status: conflict ? 'conflict' : 'replaced',
+                        oldProductId: match.original.product_id,
+                        newProductId: updatedRow.product_id,
+                        oldOfferCode: match.original.merchant_offer_code,
+                        newOfferCode: updatedRow.merchant_offer_code,
+                        originalValue: pair.source,
+                        targetValue: pair.target,
+                        targetContext: targetContext,
+                        conflictInfo: conflict ? {
+                            sourceIndex: match.index,
+                            targetIndices: Array.from(new Set(targetMatches.map(row => row.arrayIndex))),
+                            originalRow: { ...match.original }
+                        } : null,
+                        mode: replacementMode
+                    });
+                });
+            });
+
+            lastReplacementDetails = details;
+            replacementDetailsCollapsed = true;
+            lastReplacementModeUsed = replacementMode;
+            const summary = {
+                totalPairs: pairs.length,
+                replacedRows,
+                missingCount,
+                needsReview: needsReviewCount,
+                mode: replacementMode
+            };
+            renderReplacementResult(summary);
+            if (missingCount > 0) {
+                showReplacementMessage(`Не знайдено значень для заміни: ${missingCount}.`, 'error');
+            } else if (needsReviewCount > 0) {
+                showReplacementMessage(`Потребує перевірки: ${needsReviewCount} рядків позначено у звіті.`, 'warning');
+            } else {
+                clearReplacementMessage();
+            }
+            replacementTargetInput.value = '';
+            replacementSourceInput.value = '';
+            findAndDisplayDuplicates();
+        }
+
+        function parseReplacementPairs() {
+            const targetLines = replacementTargetInput.value.split('\n');
+            const sourceLines = replacementSourceInput.value.split('\n');
+            const maxLength = Math.max(targetLines.length, sourceLines.length);
+            const pairs = [];
+            for (let i = 0; i < maxLength; i++) {
+                const targetValue = (targetLines[i] || '').trim();
+                const sourceValue = (sourceLines[i] || '').trim();
+                if (!targetValue && !sourceValue) {
+                    continue;
+                }
+                if (!targetValue || !sourceValue) {
+                    return { error: 'Бракує рядків. Переконайтеся, що обидва поля містять однакову кількість значень.' };
+                }
+                pairs.push({ target: targetValue, source: sourceValue });
+            }
+            return { pairs };
+        }
+
+        function renderReplacementResult(summary) {
+            if (!summary) {
+                replacementResultBox.innerHTML = '<div class="empty-message">Ще не виконувались заміни.</div>';
+                replacementDetailsToggle.style.display = 'none';
+                replacementDetailsContainer.style.display = 'none';
+                return;
+            }
+
+            const modeText = summary.mode === 'product' ? 'product_id' : 'merchant_offer_code';
+            replacementResultBox.innerHTML = `
+                <div class="replacement-summary">Оброблено пар: ${summary.totalPairs}</div>
+                <div class="replacement-meta">
+                    Змінено рядків: ${summary.replacedRows}. Не знайдено: ${summary.missingCount}. Потребує перевірки: ${summary.needsReview}. Режим: ${modeText}.
+                </div>
+            `;
+
+            if (lastReplacementDetails.length) {
+                replacementDetailsToggle.style.display = 'inline-block';
+                replacementDetailsToggle.disabled = false;
+                replacementDetailsToggle.textContent = 'Детальніше';
+                replacementDetailsCollapsed = true;
+                replacementDetailsContainer.style.display = 'none';
+                renderReplacementDetails();
+            } else {
+                replacementDetailsToggle.style.display = 'none';
+                replacementDetailsContainer.style.display = 'none';
+            }
+        }
+
+        function resolveReplacementConflict(detailIndex, action) {
+            const detail = lastReplacementDetails[detailIndex];
+            if (!detail || detail.status !== 'conflict' || !detail.conflictInfo) return;
+            const mode = detail.mode || lastReplacementModeUsed;
+            const { sourceIndex, targetIndices, originalRow } = detail.conflictInfo;
+            const sourceRow = allData[sourceIndex];
+            const targetRows = (targetIndices || []).map(idx => ({ idx, row: allData[idx] })).filter(entry => entry.row);
+            const primaryTarget = targetRows.length ? targetRows[0].row : null;
+
+            const revertSourceToOriginal = () => {
+                if (sourceRow && originalRow) {
+                    sourceRow.product_id = originalRow.product_id;
+                    sourceRow.merchant_offer_code = originalRow.merchant_offer_code;
+                    sourceRow.deleted = false;
+                }
+            };
+
+            const removeTargetRows = () => {
+                targetRows.forEach(entry => {
+                    entry.row.deleted = true;
+                });
+            };
+
+            const resultInfo = { product_id: null, merchant_offer_code: null };
+
+            if (mode === 'product') {
+                if (action === 'keepSource') {
+                    revertSourceToOriginal();
+                    removeTargetRows();
+                    resultInfo.product_id = originalRow?.product_id || detail.oldProductId;
+                    resultInfo.merchant_offer_code = originalRow?.merchant_offer_code || detail.oldOfferCode;
+                } else if (action === 'keepTarget') {
+                    if (sourceRow) {
+                        sourceRow.deleted = true;
+                    }
+                    resultInfo.product_id = detail.targetValue;
+                    resultInfo.merchant_offer_code = primaryTarget?.merchant_offer_code || detail.newOfferCode;
+                } else if (action === 'keepSourceUseTargetCode') {
+                    if (sourceRow && primaryTarget) {
+                        sourceRow.product_id = originalRow?.product_id || detail.oldProductId;
+                        sourceRow.merchant_offer_code = primaryTarget.merchant_offer_code;
+                        sourceRow.deleted = false;
+                        removeTargetRows();
+                        resultInfo.product_id = sourceRow.product_id;
+                        resultInfo.merchant_offer_code = sourceRow.merchant_offer_code;
+                    } else {
+                        return;
+                    }
+                } else if (action === 'keepTargetUseSourceCode') {
+                    if (primaryTarget && originalRow) {
+                        primaryTarget.merchant_offer_code = originalRow.merchant_offer_code;
+                        primaryTarget.deleted = false;
+                        if (sourceRow) {
+                            sourceRow.deleted = true;
+                        }
+                        resultInfo.product_id = detail.targetValue;
+                        resultInfo.merchant_offer_code = originalRow.merchant_offer_code;
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            } else {
+                const revertSourceCode = () => {
+                    if (sourceRow && originalRow) {
+                        sourceRow.merchant_offer_code = originalRow.merchant_offer_code;
+                        sourceRow.product_id = originalRow.product_id;
+                        sourceRow.deleted = false;
+                    }
+                };
+                const removeTargetRowsForCodes = () => {
+                    targetRows.forEach(entry => {
+                        entry.row.deleted = true;
+                    });
+                };
+
+                if (action === 'keepSource') {
+                    revertSourceCode();
+                    removeTargetRowsForCodes();
+                    resultInfo.product_id = originalRow?.product_id || detail.oldProductId;
+                    resultInfo.merchant_offer_code = originalRow?.merchant_offer_code || detail.oldOfferCode;
+                } else if (action === 'keepTarget') {
+                    if (sourceRow) {
+                        sourceRow.deleted = true;
+                    }
+                    resultInfo.product_id = primaryTarget?.product_id || detail.newProductId || detail.targetValue;
+                    resultInfo.merchant_offer_code = primaryTarget?.merchant_offer_code || detail.newOfferCode || detail.targetValue;
+                } else if (action === 'keepSourceUseTargetCode') {
+                    if (sourceRow && primaryTarget) {
+                        sourceRow.merchant_offer_code = primaryTarget.merchant_offer_code;
+                        sourceRow.product_id = originalRow?.product_id || detail.oldProductId;
+                        sourceRow.deleted = false;
+                        removeTargetRowsForCodes();
+                        resultInfo.product_id = sourceRow.product_id;
+                        resultInfo.merchant_offer_code = sourceRow.merchant_offer_code;
+                    } else {
+                        return;
+                    }
+                } else if (action === 'keepTargetUseSourceCode') {
+                    if (primaryTarget && originalRow) {
+                        primaryTarget.merchant_offer_code = originalRow.merchant_offer_code;
+                        primaryTarget.deleted = false;
+                        if (sourceRow) {
+                            sourceRow.deleted = true;
+                        }
+                        resultInfo.product_id = primaryTarget.product_id;
+                        resultInfo.merchant_offer_code = primaryTarget.merchant_offer_code;
+                    } else {
+                        return;
+                    }
+                } else {
+                    return;
+                }
+            }
+
+            detail.status = 'resolved';
+            detail.resolution = action;
+            detail.resolutionInfo = resultInfo;
+            renderReplacementDetails();
+            findAndDisplayDuplicates();
+        }
+
+        function renderReplacementDetails() {
+            if (!lastReplacementDetails.length) {
+                replacementDetailsContainer.innerHTML = '';
+                return;
+            }
+            const isMerchantModeDetails = lastReplacementModeUsed === 'merchant';
+            const statusText = {
+                replaced: 'Успішно замінено',
+                missing: 'Не знайдено значення для заміни',
+                conflict: 'Цільове значення вже є в таблиці',
+                targetExists: 'Значення для підстановки вже є в таблиці',
+                resolved: 'Конфлікт вирішено'
+            };
+            const rowsHtml = lastReplacementDetails.map((detail, idx) => {
+                const rowClass = detail.status === 'missing'
+                    ? 'replacement-row--missing'
+                    : detail.status === 'conflict'
+                        ? 'replacement-row--conflict'
+                        : detail.status === 'targetExists'
+                            ? 'replacement-row--target-exists'
+                            : '';
+                const oldLink = detail.oldProductId
+                    ? `<a class="akeneo-link" href="https://akeneo.murkit.com.ua/#/enrich/product/${detail.oldProductId}" target="_blank" rel="noopener noreferrer">Akeneo</a>`
+                    : '';
+                const newLink = detail.newProductId
+                    ? `<a class="akeneo-link" href="https://akeneo.murkit.com.ua/#/enrich/product/${detail.newProductId}" target="_blank" rel="noopener noreferrer">Akeneo</a>`
+                    : '';
+                const previousProductText = detail.status === 'missing' ? '' : (detail.oldProductId || '—');
+                const newProductText = detail.status === 'missing' ? '' : (detail.newProductId || '—');
+                const contextCodes = (detail.targetContext || []).map(ctx => ctx.merchant_offer_code).filter(Boolean);
+                const contextProducts = (detail.targetContext || []).map(ctx => ctx.product_id).filter(Boolean);
+                const uniqueCodes = [...new Set(contextCodes)];
+                const uniqueProducts = [...new Set(contextProducts)];
+                let statusMessage;
+                if (detail.status === 'missing') {
+                    statusMessage = `${statusText[detail.status]}: ${detail.originalValue}`;
+                } else if (detail.status === 'conflict') {
+                    statusMessage = `${statusText[detail.status]} (${detail.targetValue})`;
+                } else if (detail.status === 'targetExists') {
+                    if (isMerchantModeDetails) {
+                        const productInfo = uniqueProducts.length ? uniqueProducts.join(', ') : (detail.targetValue || '—');
+                        statusMessage = `${statusText[detail.status]} (Product ID: ${productInfo})`;
+                    } else {
+                        const productInfo = uniqueProducts.length ? uniqueProducts.join(', ') : (detail.targetValue || detail.newProductId || detail.oldProductId || '—');
+                        const codesInfo = uniqueCodes.length ? ` | Merchant Codes: ${uniqueCodes.join(', ')}` : '';
+                        statusMessage = `${statusText[detail.status]} (Product ID: ${productInfo}${codesInfo})`;
+                    }
+                } else if (detail.status === 'resolved') {
+                    const info = detail.resolutionInfo || {};
+                    if (detail.resolution === 'keepSource') {
+                        statusMessage = `Вирішено: залишено ${info.product_id || detail.oldProductId} (${info.merchant_offer_code || detail.oldOfferCode || '—'})`;
+                    } else if (detail.resolution === 'keepTarget') {
+                        statusMessage = `Вирішено: залишено ${info.product_id || detail.targetValue} (${info.merchant_offer_code || detail.newOfferCode || '—'})`;
+                    } else if (detail.resolution === 'keepSourceUseTargetCode') {
+                        statusMessage = `Вирішено: ${info.product_id || detail.oldProductId} з кодом ${info.merchant_offer_code || detail.newOfferCode || '—'}`;
+                    } else if (detail.resolution === 'keepTargetUseSourceCode') {
+                        statusMessage = `Вирішено: ${info.product_id || detail.targetValue} з кодом ${info.merchant_offer_code || detail.oldOfferCode || '—'}`;
+                    } else {
+                        statusMessage = statusText[detail.status];
+                    }
+                } else {
+                    statusMessage = statusText[detail.status];
+                }
+                const productCellLinkOld = detail.oldProductId
+                    ? `<a class="akeneo-link" href="https://akeneo.murkit.com.ua/#/enrich/product/${detail.oldProductId}" target="_blank" rel="noopener noreferrer">Akeneo</a>`
+                    : '';
+                const productCellLinkNew = detail.newProductId
+                    ? `<a class="akeneo-link" href="https://akeneo.murkit.com.ua/#/enrich/product/${detail.newProductId}" target="_blank" rel="noopener noreferrer">Akeneo</a>`
+                    : '';
+                const targetCodePrimary = uniqueCodes[0] || detail.newOfferCode || detail.targetValue || '—';
+                const sourceCodeText = detail.oldOfferCode || '—';
+                const sourceProductText = detail.oldProductId || '—';
+                const targetProductText = isMerchantModeDetails
+                    ? (detail.newProductId || uniqueProducts[0] || '—')
+                    : (detail.targetValue || detail.newProductId || '—');
+                const firstColumnContent = `<div class="product-value">${previousProductText || '&nbsp;'}</div>`;
+                const secondColumnContent = `<div class="product-value">${newProductText || '&nbsp;'}</div>`;
+                const conflictInfoBlock = detail.status === 'conflict'
+                    ? (() => {
+                        if (isMerchantModeDetails) {
+                            return `
+                                <div class="conflict-info">
+                                    <div class="conflict-info-line">
+                                        <span>Існуючий код</span>
+                                        <span>${sourceCodeText} — ${sourceProductText}</span>
+                                    </div>
+                                    <div class="conflict-info-line">
+                                        <span>Новий код</span>
+                                        <span>${targetCodePrimary} — ${targetProductText}</span>
+                                    </div>
+                                </div>
+                            `;
+                        }
+                        return `
+                            <div class="conflict-info">
+                                <div class="conflict-info-line">
+                                    <span>Існуючий product_id</span>
+                                    <span>${sourceProductText} — ${sourceCodeText}</span>
+                                </div>
+                                <div class="conflict-info-line">
+                                    <span>Новий product_id</span>
+                                    <span>${targetProductText} — ${targetCodePrimary}</span>
+                                </div>
+                            </div>
+                        `;
+                    })()
+                    : '';
+                const actionControls = (detail.status === 'conflict' && detail.conflictInfo)
+                    ? (isMerchantModeDetails
+                        ? `
+                        <div class="conflict-actions">
+                            <button type="button" onclick="resolveReplacementConflict(${idx}, 'keepSource')">
+                                Залишити код ${sourceCodeText} — Product ${sourceProductText}
+                            </button>
+                            <button type="button" class="secondary" onclick="resolveReplacementConflict(${idx}, 'keepTarget')">
+                                Залишити код ${targetCodePrimary} — Product ${targetProductText}
+                            </button>
+                            <button type="button" onclick="resolveReplacementConflict(${idx}, 'keepSourceUseTargetCode')">
+                                Залишити product ${sourceProductText} — код ${targetCodePrimary}
+                            </button>
+                            <button type="button" class="secondary" onclick="resolveReplacementConflict(${idx}, 'keepTargetUseSourceCode')">
+                                Залишити product ${targetProductText} — код ${sourceCodeText}
+                            </button>
+                        </div>
+                    `
+                        : `
+                        <div class="conflict-actions">
+                            <button type="button" onclick="resolveReplacementConflict(${idx}, 'keepSource')">
+                                Залишити ${sourceProductText} — ${sourceCodeText}
+                            </button>
+                            <button type="button" class="secondary" onclick="resolveReplacementConflict(${idx}, 'keepTarget')">
+                                Залишити ${targetProductText} — ${targetCodePrimary}
+                            </button>
+                            <button type="button" onclick="resolveReplacementConflict(${idx}, 'keepSourceUseTargetCode')">
+                                Залишити ${sourceProductText} — код ${targetCodePrimary}
+                            </button>
+                            <button type="button" class="secondary" onclick="resolveReplacementConflict(${idx}, 'keepTargetUseSourceCode')">
+                                Залишити ${targetProductText} — код ${sourceCodeText}
+                            </button>
+                        </div>
+                    `)
+                    : '';
+                const statusCellContent = `
+                    <div class="status-cell">
+                        <div class="status-message">${statusMessage}</div>
+                        ${conflictInfoBlock}
+                        ${actionControls}
+                    </div>
+                `;
+                return `
+                    <tr class="${rowClass}">
+                        <td>
+                            ${firstColumnContent}
+                            ${oldLink ? `<div>${oldLink}</div>` : ''}
+                        </td>
+                        <td>
+                            ${secondColumnContent}
+                            ${newLink ? `<div>${newLink}</div>` : ''}
+                        </td>
+                        <td>${statusCellContent}</td>
+                    </tr>
+                `;
+            }).join('');
+
+            replacementDetailsContainer.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product ID (було)</th>
+                            <th>Product ID (стало)</th>
+                            <th>Статус</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rowsHtml}
+                    </tbody>
+                </table>
+            `;
         }
 
         function hasEmptyBetweenValues(lines) {
